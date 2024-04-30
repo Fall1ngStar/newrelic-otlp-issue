@@ -20,5 +20,6 @@ init-tracing-opentelemetry = { version = "0.18.1", features = [
     "otlp",
 ] }
 lambda_http = "0.11.1"
+reqwest = { version = "0.12.4", default-features = false, features = ["rustls-tls"] }
 
 tokio = { version = "1", features = ["macros"] }
