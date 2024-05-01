@@ -1,25 +1,29 @@
 service: newrelic-otlp-issue
-package:
-  individually: true
+frameworkVersion: ^3.38.0
+useDotenv: true
 
 provider:
   name: aws
   runtime: provided.al2023
-  region: ca-central-1
+  region: us-west-2
   architecture: arm64
-  deploymentMethod: direct
-  timeout: 30
+  # deploymentMethod: direct
+  timeout: 10
+  logRetentionInDays: 14
   layers:
-    - arn:aws:lambda:ca-central-1:901920570463:layer:aws-otel-collector-arm64-ver-0-90-1:1
+    - arn:aws:lambda:us-west-2:901920570463:layer:aws-otel-collector-arm64-ver-0-90-1:1
   environment:
     OPENTELEMETRY_COLLECTOR_CONFIG_FILE: /var/task/collector.yaml
-    NEW_RELIC_LICENSE_KEY: "Place NewRelic API Key here"
-    NEW_RELIC_OPENTELEMETRY_ENDPOINT: https://otlp.nr-data.net
+    NEW_RELIC_LICENSE_KEY: ${env:NEW_RELIC_LICENSE_KEY}
+    NEW_RELIC_OPENTELEMETRY_ENDPOINT: ${env:NEW_RELIC_OPENTELEMETRY_ENDPOINT}
+
+package:
+  individually: true
 
 functions:
   api:
     handler: bootstrap
-    memorySize: 128
+    memorySize: 256
     package:
       artifact: target/lambda/newrelic-otlp-issue/bootstrap.zip
     events:
