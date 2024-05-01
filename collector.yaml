@@ -1,33 +1,33 @@
 #collector.yaml in the root directory
 #Set an environment variable 'OPENTELEMETRY_COLLECTOR_CONFIG_FILE' to '/var/task/collector.yaml'
-
 receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: "localhost:4317"
       http:
-        endpoint: "localhost:4318"
 
 exporters:
   logging:
-  awsxray:
-  otlphttp/newrelic:
-    endpoint: ${NEW_RELIC_OPENTELEMETRY_ENDPOINT}
+    loglevel: debug
+  otlphttp:
+    endpoint: $NEW_RELIC_OPENTELEMETRY_ENDPOINT
+    tls:
+      insecure: false
     headers:
-      api-key: ${NEW_RELIC_LICENSE_KEY}
-#  debug:
-#    verbosity: detailed
-#    sampling_initial: 5
-#    sampling_thereafter: 200
+      api-key: $NEW_RELIC_LICENSE_KEY
+    compression: gzip
+    timeout: 6s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 2s # Time to wait after the first failure before retrying
+      max_interval: 4s # Maximum amount of time to wait between retries
+      max_elapsed_time: 30s # Maximum amount of time to spend retrying
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [otlphttp/newrelic]
+      exporters: [otlphttp, logging]
   telemetry:
-    logs:
-      level: "debug"
     metrics:
       address: localhost:8888
